@@ -2,22 +2,39 @@ import pandas as pd
 import methods
 
 class JSM:
+    """
+    # JSM
+    Creates a model providing the functionality of JSM-method for data analysis. 
+    See README.md for more details.
+    """
     def __init__(self,
                ban_counterexamples : bool = False,
                method : str = 'norris',
                ext_threshold : int = 2,
                int_threshold : int = 3):
         self.X_pos = pd.DataFrame()
+        """Positive examples (given and predicted)."""
         self.X_neg = pd.DataFrame()
+        """Negative examples (given and predicted)."""
         self.X_tau = pd.DataFrame()
+        """Undecided examples (given and predicted)."""
         self.X_contra = pd.DataFrame()
+        """Contradictory examples (given and predicted)."""
         self.positive_causes = pd.DataFrame()
+        """Predicted positive causes."""
         self.negative_causes = pd.DataFrame()
+        """Predicted negative causes."""
         self.ban_counterexamples = ban_counterexamples
+        """"""
         self.method = method
+        """
+        The chosen algorithm for the calculation of minimal intersections 
+        during the induction stage. See README.md for more details.
+        """
         self.ext_threshold = ext_threshold
         """The extensional threshold."""
         self.int_threshold = int_threshold
+        """The intensional threshold."""
         self.steps = 0 
         """Amount of completed JSM-method iterations since the instantiation of the model."""
         self.is_causally_complete = False
@@ -25,6 +42,12 @@ class JSM:
         self.lost_neg_ids = []
 
     def fit(self, X : pd.DataFrame, y : pd.Series):
+        """
+        Fits the training data **X** and the target data **y** to the model.
+
+        :param X: Training data.
+        :param y: Target data.
+        """
         if '_step' not in X.columns:
             X['_step'] = 0
         self.X_pos = X[y == 1]
@@ -32,11 +55,13 @@ class JSM:
         self.X_tau = X[y.isna()]
         self.X_contra = X[y == 0]
 
-    def predict(self, steps : int = 0, show_steps : bool = False):
+    def predict(self, steps : int = -1, show_steps : bool = False):
         """
-        Apply the JSM method.
+        Applies the JSM method.
 
-        :param steps: The amount of iterations to perform
+        :param steps: The amount of iterations to perform. Set to -1 to 
+        perform until no new values can be predicted.
+        :param show_steps: Print the execution of the method to console.
         """
         is_finished = False
         while not is_finished:
@@ -48,13 +73,21 @@ class JSM:
                 print(f"Contradicting examples: {self.X_contra.index.tolist()}")
             self.steps += 1
             self.__induction()
-            is_finished = self.__analogy()
+            if steps > 0:
+                steps -= 1
+            elif steps == 0:
+                is_finished = True
+            else:
+                is_finished = self.__analogy()
         else:
             self.is_causally_complete = self.__abduction()
             if show_steps:
                print("Causally complete:", self.is_causally_complete)
 
     def to_df(self):
+        """
+        Returns a dataframe containing all the examples with their predicted values.
+        """
         new_X_pos = self.X_pos.copy()
         new_X_pos['_target'] = 1
         new_X_neg = self.X_neg.copy()
