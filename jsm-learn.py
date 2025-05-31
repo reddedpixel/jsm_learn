@@ -47,10 +47,10 @@ class JSM:
                 print(f"Undecided examples: {self.X_tau.index.tolist()}")
                 print(f"Contradicting examples: {self.X_contra.index.tolist()}")
             self.steps += 1
-            self.induction()
-            is_finished = self.analogy()
+            self.__induction()
+            is_finished = self.__analogy()
         else:
-            self.is_causally_complete = self.abduction()
+            self.is_causally_complete = self.__abduction()
             if show_steps:
                print("Causally complete:", self.is_causally_complete)
 
@@ -65,18 +65,18 @@ class JSM:
         new_X_contra['_target'] = 0
         return pd.concat([new_X_pos, new_X_neg, new_X_contra, new_X_tau])
 
-    def induction(self):
-            pos_cause_candidates = self.filtration(self.find_similarities(self.X_pos))
-            neg_cause_candidates = self.filtration(self.find_similarities(self.X_neg))
+    def __induction(self):
+            pos_cause_candidates = self.__filtration(self.__find_similarities(self.X_pos))
+            neg_cause_candidates = self.__filtration(self.__find_similarities(self.X_neg))
 
-            self.positive_causes = self.falsification(pos_cause_candidates, neg_cause_candidates, self.X_pos)
-            self.negative_causes = self.falsification(neg_cause_candidates, pos_cause_candidates, self.X_neg)
+            self.positive_causes = self.__falsification(pos_cause_candidates, neg_cause_candidates, self.X_pos)
+            self.negative_causes = self.__falsification(neg_cause_candidates, pos_cause_candidates, self.X_neg)
 
-    def find_similarities(self,  objects):
+    def __find_similarities(self,  objects):
         #!TODO add other methods
         return methods.norris(objects, self.steps)
     
-    def filtration(self, candidates_df : pd.DataFrame):
+    def __filtration(self, candidates_df : pd.DataFrame):
             result = pd.DataFrame(columns=candidates_df.columns)
             for i in range(len(candidates_df)):
                 if len(candidates_df.iloc[i]['_ext']) >= self.ext_threshold \
@@ -84,7 +84,7 @@ class JSM:
                     result.loc[len(result)] = candidates_df.iloc[i]
             return result
 
-    def falsification(self, candidates_df, opposing_candidates_df, opposing_X):
+    def __falsification(self, candidates_df, opposing_candidates_df, opposing_X):
         causes = pd.DataFrame()
         if self.ban_counterexamples:
             #!TODO
@@ -95,7 +95,7 @@ class JSM:
             causes = candidates_df[merged_df['_merge'] == 'left_only']
         return causes
 
-    def analogy(self):
+    def __analogy(self):
         is_finished = True
         rows_to_drop = []
         for i in self.X_tau.index.tolist():
@@ -128,7 +128,7 @@ class JSM:
         self.X_tau.drop(rows_to_drop, inplace=True)
         return is_finished
 
-    def abduction(self):
+    def __abduction(self):
         all_pos_ext = set()
         all_neg_ext = set()
         for ext in self.positive_causes["_ext"]:
