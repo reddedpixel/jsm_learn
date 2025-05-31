@@ -16,8 +16,10 @@ class JSM:
         self.ban_counterexamples = ban_counterexamples
         self.method = method
         self.ext_threshold = ext_threshold
+        """The extensional threshold."""
         self.int_threshold = int_threshold
-        self.steps = 0
+        self.steps = 0 
+        """Amount of completed JSM-method iterations since the instantiation of the model."""
         self.is_causally_complete = False
         self.lost_pos_ids = []
         self.lost_neg_ids = []
@@ -30,7 +32,12 @@ class JSM:
         self.X_tau = X[y.isna()]
         self.X_contra = X[y == 0]
 
-    def predict(self, show_steps : bool = False):
+    def predict(self, steps : int = 0, show_steps : bool = False):
+        """
+        Apply the JSM method.
+
+        :param steps: The amount of iterations to perform
+        """
         is_finished = False
         while not is_finished:
             if show_steps:
