@@ -2,22 +2,39 @@ import pandas as pd
 import methods
 
 class JSM:
+    """
+    # JSM
+    Creates a model providing the functionality of JSM-method for data analysis. 
+    See README.md for more details.
+    """
     def __init__(self,
                ban_counterexamples : bool = False,
                method : str = 'norris',
                ext_threshold : int = 2,
                int_threshold : int = 3):
         self.X_pos = pd.DataFrame()
+        """Positive examples (given and predicted)."""
         self.X_neg = pd.DataFrame()
+        """Negative examples (given and predicted)."""
         self.X_tau = pd.DataFrame()
+        """Undecided examples (given and predicted)."""
         self.X_contra = pd.DataFrame()
+        """Contradictory examples (given and predicted)."""
         self.positive_causes = pd.DataFrame()
+        """Predicted positive causes."""
         self.negative_causes = pd.DataFrame()
+        """Predicted negative causes."""
         self.ban_counterexamples = ban_counterexamples
+        """"""
         self.method = method
+        """
+        The chosen algorithm for the calculation of minimal intersections 
+        during the induction stage. See README.md for more details.
+        """
         self.ext_threshold = ext_threshold
         """The extensional threshold."""
         self.int_threshold = int_threshold
+        """The intensional threshold."""
         self.steps = 0 
         """Amount of completed JSM-method iterations since the instantiation of the model."""
         self.is_causally_complete = False
@@ -25,6 +42,12 @@ class JSM:
         self.lost_neg_ids = []
 
     def fit(self, X : pd.DataFrame, y : pd.Series):
+        """
+        Fits the training data **X** and the target data **y** to the model.
+
+        :param X: Training data.
+        :param y: Target data.
+        """
         if '_step' not in X.columns:
             X['_step'] = 0
         self.X_pos = X[y == 1]
@@ -32,11 +55,13 @@ class JSM:
         self.X_tau = X[y.isna()]
         self.X_contra = X[y == 0]
 
-    def predict(self, steps : int = 0, show_steps : bool = False):
+    def predict(self, steps : int = -1, show_steps : bool = False):
         """
-        Apply the JSM method.
+        Applies the JSM method.
 
-        :param steps: The amount of iterations to perform
+        :param steps: The amount of iterations to perform. Set to -1 to 
+        perform until no new values can be predicted.
+        :param show_steps: Print the execution of the method to console.
         """
         is_finished = False
         while not is_finished:
@@ -47,14 +72,22 @@ class JSM:
                 print(f"Undecided examples: {self.X_tau.index.tolist()}")
                 print(f"Contradicting examples: {self.X_contra.index.tolist()}")
             self.steps += 1
-            self.induction()
-            is_finished = self.analogy()
+            self.__induction()
+            if steps > 0:
+                steps -= 1
+            elif steps == 0:
+                is_finished = True
+            else:
+                is_finished = self.__analogy()
         else:
-            self.is_causally_complete = self.abduction()
+            self.is_causally_complete = self.__abduction()
             if show_steps:
                print("Causally complete:", self.is_causally_complete)
 
     def to_df(self):
+        """
+        Returns a dataframe containing all the examples with their predicted values.
+        """
         new_X_pos = self.X_pos.copy()
         new_X_pos['_target'] = 1
         new_X_neg = self.X_neg.copy()
@@ -65,18 +98,18 @@ class JSM:
         new_X_contra['_target'] = 0
         return pd.concat([new_X_pos, new_X_neg, new_X_contra, new_X_tau])
 
-    def induction(self):
-            pos_cause_candidates = self.filtration(self.find_similarities(self.X_pos))
-            neg_cause_candidates = self.filtration(self.find_similarities(self.X_neg))
+    def __induction(self):
+            pos_cause_candidates = self.__filtration(self.__find_similarities(self.X_pos))
+            neg_cause_candidates = self.__filtration(self.__find_similarities(self.X_neg))
 
-            self.positive_causes = self.falsification(pos_cause_candidates, neg_cause_candidates, self.X_pos)
-            self.negative_causes = self.falsification(neg_cause_candidates, pos_cause_candidates, self.X_neg)
+            self.positive_causes = self.__falsification(pos_cause_candidates, neg_cause_candidates, self.X_pos)
+            self.negative_causes = self.__falsification(neg_cause_candidates, pos_cause_candidates, self.X_neg)
 
-    def find_similarities(self,  objects):
+    def __find_similarities(self,  objects):
         #!TODO add other methods
         return methods.norris(objects, self.steps)
     
-    def filtration(self, candidates_df : pd.DataFrame):
+    def __filtration(self, candidates_df : pd.DataFrame):
             result = pd.DataFrame(columns=candidates_df.columns)
             for i in range(len(candidates_df)):
                 if len(candidates_df.iloc[i]['_ext']) >= self.ext_threshold \
@@ -84,7 +117,7 @@ class JSM:
                     result.loc[len(result)] = candidates_df.iloc[i]
             return result
 
-    def falsification(self, candidates_df, opposing_candidates_df, opposing_X):
+    def __falsification(self, candidates_df, opposing_candidates_df, opposing_X):
         causes = pd.DataFrame()
         if self.ban_counterexamples:
             #!TODO
@@ -95,7 +128,7 @@ class JSM:
             causes = candidates_df[merged_df['_merge'] == 'left_only']
         return causes
 
-    def analogy(self):
+    def __analogy(self):
         is_finished = True
         rows_to_drop = []
         for i in self.X_tau.index.tolist():
@@ -128,7 +161,7 @@ class JSM:
         self.X_tau.drop(rows_to_drop, inplace=True)
         return is_finished
 
-    def abduction(self):
+    def __abduction(self):
         all_pos_ext = set()
         all_neg_ext = set()
         for ext in self.positive_causes["_ext"]:

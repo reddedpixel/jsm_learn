@@ -1,7 +1,8 @@
 import pandas as pd
 
 def norris(obj_df: pd.DataFrame, current_step : int):
-    # POSSIBLE OPTIMISATION: give current term dictionary?
+    """Performs Norris's algorithm to calculate minimal intersections."""
+    #!TODO: give current term dictionary?
     terms_df = pd.DataFrame(columns=obj_df.columns)
     terms_df['_ext'] = None
     obj_ids = obj_df.index.tolist()
