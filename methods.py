@@ -58,3 +58,9 @@ def anshakov(obj_df : pd.DataFrame):
             terms_df.loc[len(terms_df)] = i_intersection
         #!TODO: дописать
         
+def khazanovskiy(obj_df :pd.DataFrame):
+    ...
+    
+def close_by_one(obj_df : pd.DataFrame):
+    ...
+
