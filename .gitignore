@@ -1,2 +1,4 @@
 jsm_tools_dataset.csv
 test.ipynb
+/__pycache__
+test.py
