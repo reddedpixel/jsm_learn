@@ -50,10 +50,10 @@ class JSM:
         """
         if '_step' not in X.columns:
             X['_step'] = 0
-        self.X_pos = X[y == 1]
-        self.X_neg = X[y == -1]
-        self.X_tau = X[y.isna()]
-        self.X_contra = X[y == 0]
+        self.X_pos = X[y == 1].copy()
+        self.X_neg = X[y == -1].copy()
+        self.X_tau = X[y.isna()].copy()
+        self.X_contra = X[y == 0].copy()
 
     def predict(self, steps : int = -1, show_steps : bool = False):
         """
