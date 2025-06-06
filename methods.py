@@ -38,28 +38,41 @@ def norris(obj_df: pd.DataFrame, current_step : int):
             row['_ext'] = {k}
             terms_df.loc[len(terms_df)] = row
     return terms_df
-
-def anshakov(obj_df : pd.DataFrame):
-    terms_df = pd.DataFrame(columns=obj_df.columns)
-    terms_df['_ext'] = None
-    obj_df.sort_values(by=obj_df.columns, 
-                       inplace=True, 
-                       ascending=[True] * len(obj_df.columns))
-    for i in range(len(obj_df)):
-        i_intersection = obj_df.iloc[i]
-        i_ids = []
-        for j in range(i + 1, len(obj_df)):
-            cur_intersection = i_intersection & obj_df.iloc[j]
-            if cur_intersection.any():
-                i_intersection = cur_intersection
-                i_ids.append(j)
-        if len(i_ids) > 2:
-            i_intersection['_ext'] = frozenset(i_ids)
-            terms_df.loc[len(terms_df)] = i_intersection
-        #!TODO: дописать
         
 def khazanovskiy(obj_df :pd.DataFrame):
-    ...
+    terms_df = pd.DataFrame(columns=obj_df.columns)
+    terms_df['_ext'] = None
+    obj_ids = obj_df.index.tolist()
+    checked_attributes = set()
+    all_attributes = set(terms_df.columns.tolist())
+    for attribute in terms_df.columns:
+        if checked_attributes == all_attributes:
+            break
+        if attribute not in checked_attributes:
+            full_intersection = pd.Series([True] * len(terms_df.columns), index=terms_df.columns)\
+                .drop(columns=list(checked_attributes))
+            empty_intersection = pd.Series([False] * len(terms_df.columns), index=terms_df.columns)\
+                .drop(columns=list(checked_attributes))
+            current_intersection = full_intersection
+            complement = empty_intersection
+            positive_ids = set()
+            for i in obj_ids:
+                if obj_df.loc[i][attribute] == True:
+                    positive_ids.add(i)
+                    current_intersection = current_intersection & obj_df\
+                        .loc[i].drop(columns=list(checked_attributes))
+                else:
+                    complement = complement | obj_df.loc[i].drop(columns=list(checked_attributes))
+            if len(positive_ids) >= 2 and current_intersection & complement == empty_intersection:
+                checked_attributes = checked_attributes\
+                    .union(set(current_intersection[current_intersection == True].index.tolist()))
+                current_intersection['_ext'] = frozenset(positive_ids)
+                terms_df[len(terms_df)] = current_intersection
+            else:
+                checked_attributes.add(attribute)
+    return terms_df
+
+
     
 def close_by_one(obj_df : pd.DataFrame):
     ...
