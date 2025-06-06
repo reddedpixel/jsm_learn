@@ -1,14 +1,14 @@
-# jsm-learn
+# jsm_learn
 ### A Python library for data analysis using JSM-method 
 ## Introduction
 ### The JSM-method
 **The JSM-method for automatised hypothesis forming** (Rus. *ДСМ-метод автоматического порождения гипотез, ДСМ-АПГ*) is a data analysis method first introduced by a group of researchers lead by Viktor Finn (Виктор Константинович Финн) in 1983. The JSM-method is not a probability-based data analysis method; instead it is based on mathematical logic. This allows the JSM-method to not only predict values based on reasoning-like procedures, but also to provide explanations on why those predictions where made. It has been successfully used in many studies, proving itself particularly useful in fields like sociology, medicine, pharmacology and criminology.
-### The `jsm-learn` package
-The `jsm-learn` package provides a version of the JSM-method using set theory. This package contains a `JSM` class which can be used to instantiate a model applying the JSM-method. The package was designed to be easy to approach for users familiar with the `scikit-learn` package.
+### The `jsm_learn` package
+The `jsm_learn` package provides a version of the JSM-method using set theory. This package contains a `JSM` class which can be used to instantiate a model applying the JSM-method. The package was designed to be easy to approach for users familiar with the `scikit-learn` package.
 ## Quick-start guide
 1. Import the module:
     ```python
-    import jsm-learn
+    import jsm_learn
     ```
 2. Instantiate a new model:
     ```python
