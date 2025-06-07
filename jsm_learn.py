@@ -1,5 +1,5 @@
 import pandas as pd
-import methods
+from jsm_learn import methods
 
 class JSM:
     """
