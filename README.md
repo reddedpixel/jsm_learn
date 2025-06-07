@@ -8,11 +8,11 @@ The `jsm_learn` package provides a version of the JSM-method using set theory. T
 ## Quick-start guide
 1. Import the module:
     ```python
-    import jsm_learn
+    import jsm_learn as jl
     ```
 2. Instantiate a new model:
     ```python
-    my_jsm = JSM()
+    my_jsm = jl.JSM()
     ```
 3. Fit the model to your data:
     ```python
@@ -26,15 +26,7 @@ The `jsm_learn` package provides a version of the JSM-method using set theory. T
     ```python
     results = my_jsm.to_df()
     ```
-
-## Documentation
-
-## Learn more
-### About the JSM-method
-1. ...
-### About research done using the JSM-method
-1. ...
-
+    
 ## Acknowledgments
 This package was developed by Mikhail Torkanovskiy for his bachelor's degree. The author would like to thank the following people:
 * **Oleg Mikhaylovich Anshakov** for his help and support as the research supervisor;

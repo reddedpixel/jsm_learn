@@ -5,7 +5,6 @@ class JSM:
     """
     # JSM
     Creates a model providing the functionality of JSM-method for data analysis. 
-    See README.md for more details.
     """
     def __init__(self,
                ban_counterexamples : bool = False,
@@ -29,7 +28,7 @@ class JSM:
         self.method = method
         """
         The chosen algorithm for the calculation of minimal intersections 
-        during the induction stage. See README.md for more details.
+        during the induction stage.
         """
         self.ext_threshold = ext_threshold
         """The extensional threshold."""

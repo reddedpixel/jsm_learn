@@ -37,6 +37,7 @@ def norris(obj_df: pd.DataFrame):
     return terms_df
         
 def khazanovskiy(obj_df :pd.DataFrame):
+    """Performs Khazanovskiy's algorithm to calculate minimal intersections."""
     terms_df = pd.DataFrame(columns=obj_df.columns)
     terms_df['_ext'] = None
     obj_ids = obj_df.index.tolist()
