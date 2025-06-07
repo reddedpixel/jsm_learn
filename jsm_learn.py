@@ -50,10 +50,10 @@ class JSM:
         """
         if '_step' not in X.columns:
             X['_step'] = 0
-        self.X_pos = X[y == 1]
-        self.X_neg = X[y == -1]
-        self.X_tau = X[y.isna()]
-        self.X_contra = X[y == 0]
+        self.X_pos = X[y == 1].copy()
+        self.X_neg = X[y == -1].copy()
+        self.X_tau = X[y.isna()].copy()
+        self.X_contra = X[y == 0].copy()
 
     def predict(self, steps : int = -1, show_steps : bool = False):
         """
@@ -99,21 +99,23 @@ class JSM:
         return pd.concat([new_X_pos, new_X_neg, new_X_contra, new_X_tau])
 
     def __induction(self):
-            pos_cause_candidates = self.__filtration(self.__find_similarities(self.X_pos))
-            neg_cause_candidates = self.__filtration(self.__find_similarities(self.X_neg))
+            pos_cause_candidates = self.__filtration(self.__find_similarities(self.X_pos.drop(columns='_step')))
+            neg_cause_candidates = self.__filtration(self.__find_similarities(self.X_neg.drop(columns='_step')))
 
             self.positive_causes = self.__falsification(pos_cause_candidates, neg_cause_candidates, self.X_pos)
             self.negative_causes = self.__falsification(neg_cause_candidates, pos_cause_candidates, self.X_neg)
 
     def __find_similarities(self,  objects):
-        #!TODO add other methods
-        return methods.norris(objects, self.steps)
+        if self.method == 'norris':
+            return methods.norris(objects)
+        elif self.method == 'khazanovskiy':
+            return methods.khazanovskiy(objects)
     
     def __filtration(self, candidates_df : pd.DataFrame):
             result = pd.DataFrame(columns=candidates_df.columns)
             for i in range(len(candidates_df)):
                 if len(candidates_df.iloc[i]['_ext']) >= self.ext_threshold \
-                    and candidates_df.iloc[i].drop(['_step', '_ext']).sum() >= self.int_threshold:
+                    and candidates_df.iloc[i].drop(['_ext']).sum() >= self.int_threshold:
                     result.loc[len(result)] = candidates_df.iloc[i]
             return result
 
@@ -136,12 +138,12 @@ class JSM:
             is_pos = False
             is_neg = False
             for p in self.positive_causes.index.tolist():
-                pos_cause = self.positive_causes.loc[p].drop(['_ext', '_step']).astype(bool)
+                pos_cause = self.positive_causes.loc[p].drop(['_ext']).astype(bool)
                 if pos_cause.equals(x & pos_cause):
                     is_pos = True
                     break
             for n in self.negative_causes.index.tolist():
-                neg_cause = self.negative_causes.loc[n].drop(['_ext', '_step']).astype(bool)
+                neg_cause = self.negative_causes.loc[n].drop(['_ext']).astype(bool)
                 if neg_cause.equals(x & neg_cause):
                     is_neg = True
                     break
