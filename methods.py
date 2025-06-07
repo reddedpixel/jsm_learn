@@ -22,11 +22,10 @@ def norris(obj_df: pd.DataFrame):
                 prev_obj_ids = [id for id in obj_ids if id < k]
                 for i_prev in prev_obj_ids:
                     prev_obj = obj_df.loc[i_prev]
-                    #prev_obj_dropped = prev_obj.drop('_step')
-                    if row.equals(prev_obj & row): #_dropped
+                    if row.equals(prev_obj & row):
                         abs_canonical = False
                     if term_intersection.equals(prev_obj & term_intersection)\
-                        and i_prev not in term['_ext']:#_dropped
+                        and i_prev not in term['_ext']:
                         missing_i.add(i_prev)
                 if missing_i == set():
                     new_term = term_intersection
@@ -70,7 +69,3 @@ def khazanovskiy(obj_df :pd.DataFrame):
             else:
                 checked_attributes.add(attribute)
     return terms_df
-    
-def close_by_one(obj_df : pd.DataFrame):
-    ...
-
