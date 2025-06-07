@@ -89,13 +89,13 @@ class JSM:
         Returns a dataframe containing all the examples with their predicted values.
         """
         new_X_pos = self.X_pos.copy()
-        new_X_pos['_target'] = 1
+        new_X_pos['target'] = 1
         new_X_neg = self.X_neg.copy()
-        new_X_neg['_target'] = -1
+        new_X_neg['target'] = -1
         new_X_tau = self.X_tau.copy()
-        new_X_tau['_target'] = None
+        new_X_tau['target'] = None
         new_X_contra = self.X_contra.copy()
-        new_X_contra['_target'] = 0
+        new_X_contra['target'] = 0
         return pd.concat([new_X_pos, new_X_neg, new_X_contra, new_X_tau])
 
     def __induction(self):
